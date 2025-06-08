@@ -68,6 +68,22 @@
             <version>${spring-boot.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- MockK for Kotlin mocking -->
+        <dependency>
+            <groupId>io.mockk</groupId>
+            <artifactId>mockk-jvm</artifactId>
+            <version>1.13.7</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Kotlin Test -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test-junit5</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: tarifit-content-service-test
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/test_tarifittranslator
+
+server:
+  port: 0
+
+logging:
+  level:
+    com.tarifit: DEBUG
+    org.springframework.test: DEBUG
+    org.springframework.web: DEBUG
