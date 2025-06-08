@@ -1,6 +1,6 @@
-package com.tarifit.content.repository
+package com.tarifit.content.repository.verb
 
-import com.tarifit.content.domain.Verb
+import com.tarifit.content.domain.verb.Verb
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.MongoRepository

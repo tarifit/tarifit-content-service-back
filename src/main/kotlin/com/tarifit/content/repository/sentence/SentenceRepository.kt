@@ -1,6 +1,6 @@
-package com.tarifit.content.repository
+package com.tarifit.content.repository.sentence
 
-import com.tarifit.content.domain.Sentence
+import com.tarifit.content.domain.sentence.Sentence
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.MongoRepository

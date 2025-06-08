@@ -1,4 +1,4 @@
-package com.tarifit.content.domain
+package com.tarifit.content.domain.sentence
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
