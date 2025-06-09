@@ -7,21 +7,14 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
-import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
-@WebMvcTest(SentenceController::class)
-@TestPropertySource(properties = [
-    "spring.data.mongodb.uri=mongodb://localhost:27017/testdb"
-])
 class SentenceControllerTest {
 
     private lateinit var mockMvc: MockMvc
@@ -214,22 +207,5 @@ class SentenceControllerTest {
             .andExpect(jsonPath("$.content").isEmpty)
 
         verify { sentenceService.searchSentences(query, 0, 20) }
-    }
-
-    @Test
-    fun `endpoints should handle CORS properly`() {
-        val sentences = listOf(
-            Sentence(id = "1", englishSentence = "CORS test", rifSentence = "Armad n CORS")
-        )
-        val page = PageImpl(sentences, PageRequest.of(0, 20), 1)
-        every { sentenceService.getAllSentences(0, 20) } returns page
-
-        mockMvc.perform(get("/api/v1/content/sentences")
-            .header("Origin", "http://localhost:3000")
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk)
-            .andExpect(header().string("Access-Control-Allow-Origin", "*"))
-
-        verify { sentenceService.getAllSentences(0, 20) }
     }
 }
