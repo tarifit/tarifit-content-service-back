@@ -29,7 +29,14 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@v1
+        with:
+          mongodb-version: '5.0'
+
       - name: Run tests
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
         run: mvn clean test
 
       - name: Generate test report
