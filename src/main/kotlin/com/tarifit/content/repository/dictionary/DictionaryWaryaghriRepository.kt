@@ -10,12 +10,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface DictionaryWaryaghriRepository : MongoRepository<DictionaryWaryaghri, String> {
     
-    @Query("{\$or: [{'mot': {\$regex: ?0, \$options: 'i'}}, {'definitionFr': {\$regex: ?0, \$options: 'i'}}]}")
+    @Query("{\$or: [{'Mot': {\$regex: ?0, \$options: 'i'}}, {'DefinitionFr': {\$regex: ?0, \$options: 'i'}}]}")
     fun findByMotOrDefinitionContainingIgnoreCase(query: String, pageable: Pageable): Page<DictionaryWaryaghri>
-    
-    @Query("{'mot': {\$regex: ?0, \$options: 'i'}}")
-    fun findByMotContainingIgnoreCase(mot: String, pageable: Pageable): Page<DictionaryWaryaghri>
-    
-    @Query("{'definitionFr': {\$regex: ?0, \$options: 'i'}}")
-    fun findByDefinitionContainingIgnoreCase(definition: String, pageable: Pageable): Page<DictionaryWaryaghri>
 }

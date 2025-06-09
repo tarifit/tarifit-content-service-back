@@ -12,10 +12,4 @@ interface SentenceRepository : MongoRepository<Sentence, String> {
     
     @Query("{\$or: [{'englishSentence': {\$regex: ?0, \$options: 'i'}}, {'rifSentence': {\$regex: ?0, \$options: 'i'}}]}")
     fun findByEnglishOrRifSentenceContainingIgnoreCase(query: String, pageable: Pageable): Page<Sentence>
-    
-    @Query("{'englishSentence': {\$regex: ?0, \$options: 'i'}}")
-    fun findByEnglishSentenceContainingIgnoreCase(englishSentence: String, pageable: Pageable): Page<Sentence>
-    
-    @Query("{'rifSentence': {\$regex: ?0, \$options: 'i'}}")
-    fun findByRifSentenceContainingIgnoreCase(rifSentence: String, pageable: Pageable): Page<Sentence>
 }

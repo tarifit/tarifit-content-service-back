@@ -17,16 +17,6 @@ class SentenceService(
         return sentenceRepository.findByEnglishOrRifSentenceContainingIgnoreCase(query, pageable)
     }
 
-    fun searchEnglishSentences(englishQuery: String, page: Int = 0, size: Int = 20): Page<Sentence> {
-        val pageable: Pageable = PageRequest.of(page, size)
-        return sentenceRepository.findByEnglishSentenceContainingIgnoreCase(englishQuery, pageable)
-    }
-
-    fun searchRifSentences(rifQuery: String, page: Int = 0, size: Int = 20): Page<Sentence> {
-        val pageable: Pageable = PageRequest.of(page, size)
-        return sentenceRepository.findByRifSentenceContainingIgnoreCase(rifQuery, pageable)
-    }
-
     fun getAllSentences(page: Int = 0, size: Int = 20): Page<Sentence> {
         val pageable: Pageable = PageRequest.of(page, size)
         return sentenceRepository.findAll(pageable)

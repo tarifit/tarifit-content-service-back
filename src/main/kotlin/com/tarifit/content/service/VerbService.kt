@@ -17,16 +17,6 @@ class VerbService(
         return verbRepository.findByVerbOrTranslationContainingIgnoreCase(query, pageable)
     }
 
-    fun searchByVerb(verb: String, page: Int = 0, size: Int = 20): Page<Verb> {
-        val pageable: Pageable = PageRequest.of(page, size)
-        return verbRepository.findByVerbContainingIgnoreCase(verb, pageable)
-    }
-
-    fun searchByTranslation(translation: String, page: Int = 0, size: Int = 20): Page<Verb> {
-        val pageable: Pageable = PageRequest.of(page, size)
-        return verbRepository.findByTranslationContainingIgnoreCase(translation, pageable)
-    }
-
     fun getAllVerbs(page: Int = 0, size: Int = 20): Page<Verb> {
         val pageable: Pageable = PageRequest.of(page, size)
         return verbRepository.findAll(pageable)
@@ -35,10 +25,5 @@ class VerbService(
     fun getRandomVerbs(count: Int = 10): List<Verb> {
         val pageable: Pageable = PageRequest.of(0, count)
         return verbRepository.findAll(pageable).content
-    }
-
-    fun getVerbsByDifficulty(difficulty: String, page: Int = 0, size: Int = 20): Page<Verb> {
-        val pageable: Pageable = PageRequest.of(page, size)
-        return verbRepository.findByDifficulty(difficulty, pageable)
     }
 }

@@ -5,9 +5,9 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document(collection = "dictionary_aqelɛi")
 data class DictionaryAqelei(
-    @Id val id: String? = null,
+    @Id override val id: String? = null,
     val word: String,
     val plural: String? = null,
     val type: String? = null,
     val translation: String
-)
+) : DictionaryEntry

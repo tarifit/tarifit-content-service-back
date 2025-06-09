@@ -2,8 +2,7 @@ package com.tarifit.content.controller
 
 import com.tarifit.content.domain.dictionary.DictionaryAqelei
 import com.tarifit.content.domain.dictionary.DictionaryWaryaghri
-import com.tarifit.content.service.ContentService
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.tarifit.content.service.DictionaryService
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -13,29 +12,29 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
+import org.springframework.context.annotation.Import
 import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @WebMvcTest(DictionaryController::class)
+@Import(DictionaryControllerTest.TestConfig::class)
 class DictionaryControllerTest {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
 
     @Autowired
-    private lateinit var contentService: ContentService
-
-    @Autowired
-    private lateinit var objectMapper: ObjectMapper
+    private lateinit var dictionaryService: DictionaryService
 
     @TestConfiguration
     class TestConfig {
         @Bean
         @Primary
-        fun contentService(): ContentService = mockk()
+        fun dictionaryService(): DictionaryService = mockk()
     }
 
     @Test
@@ -45,10 +44,12 @@ class DictionaryControllerTest {
         val type = "aqelei"
         val page = 0
         val size = 20
-        val mockResult = PageImpl(listOf(
-            DictionaryAqelei(id = "1", word = "eau", translation = "aman")
-        ))
-        every { contentService.searchDictionary(query, type, page, size) } returns mockResult
+        val mockResult = PageImpl(
+            listOf(DictionaryAqelei(id = "1", word = "eau", translation = "aman")),
+            PageRequest.of(page, size),
+            1
+        )
+        every { dictionaryService.searchAqelei(query, page, size) } returns mockResult
 
         // When & Then
         mockMvc.perform(
@@ -64,17 +65,19 @@ class DictionaryControllerTest {
             .andExpect(jsonPath("$.content[0].word").value("eau"))
             .andExpect(jsonPath("$.content[0].translation").value("aman"))
 
-        verify { contentService.searchDictionary(query, type, page, size) }
+        verify { dictionaryService.searchAqelei(query, page, size) }
     }
 
     @Test
     fun `searchDictionary should use default parameters`() {
         // Given
         val query = "test"
-        val mockResult = PageImpl(listOf(
-            DictionaryAqelei(id = "1", word = "test", translation = "test")
-        ))
-        every { contentService.searchDictionary(query, "aqelei", 0, 20) } returns mockResult
+        val mockResult = PageImpl(
+            listOf(DictionaryAqelei(id = "1", word = "test", translation = "test")),
+            PageRequest.of(0, 20),
+            1
+        )
+        every { dictionaryService.searchAqelei(query, 0, 20) } returns mockResult
 
         // When & Then
         mockMvc.perform(
@@ -84,7 +87,7 @@ class DictionaryControllerTest {
         )
             .andExpect(status().isOk)
 
-        verify { contentService.searchDictionary(query, "aqelei", 0, 20) }
+        verify { dictionaryService.searchAqelei(query, 0, 20) }
     }
 
     @Test
@@ -95,7 +98,7 @@ class DictionaryControllerTest {
         val mockResult = listOf(
             DictionaryWaryaghri(id = "1", mot = "aman", definitionFr = "eau")
         )
-        every { contentService.getRandomWords(type, count) } returns mockResult
+        every { dictionaryService.getRandomWaryaghriWords(count) } returns mockResult
 
         // When & Then
         mockMvc.perform(
@@ -109,7 +112,7 @@ class DictionaryControllerTest {
             .andExpect(jsonPath("$[0].mot").value("aman"))
             .andExpect(jsonPath("$[0].definitionFr").value("eau"))
 
-        verify { contentService.getRandomWords(type, count) }
+        verify { dictionaryService.getRandomWaryaghriWords(count) }
     }
 
     @Test
@@ -118,7 +121,7 @@ class DictionaryControllerTest {
         val mockResult = listOf(
             DictionaryAqelei(id = "1", word = "test", translation = "test")
         )
-        every { contentService.getRandomWords("aqelei", 10) } returns mockResult
+        every { dictionaryService.getRandomAqeleiWords(10) } returns mockResult
 
         // When & Then
         mockMvc.perform(
@@ -127,7 +130,7 @@ class DictionaryControllerTest {
         )
             .andExpect(status().isOk)
 
-        verify { contentService.getRandomWords("aqelei", 10) }
+        verify { dictionaryService.getRandomAqeleiWords(10) }
     }
 
     @Test
@@ -136,10 +139,12 @@ class DictionaryControllerTest {
         val type = "aqelei"
         val page = 1
         val size = 10
-        val mockResult = PageImpl(listOf(
-            DictionaryAqelei(id = "1", word = "eau", translation = "aman")
-        ))
-        every { contentService.getAllDictionaryEntries(type, page, size) } returns mockResult
+        val mockResult = PageImpl(
+            listOf(DictionaryAqelei(id = "1", word = "eau", translation = "aman")),
+            PageRequest.of(page, size),
+            1
+        )
+        every { dictionaryService.getAllAqelei(page, size) } returns mockResult
 
         // When & Then
         mockMvc.perform(
@@ -153,6 +158,6 @@ class DictionaryControllerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.content[0].word").value("eau"))
 
-        verify { contentService.getAllDictionaryEntries(type, page, size) }
+        verify { dictionaryService.getAllAqelei(page, size) }
     }
 }

@@ -3,7 +3,7 @@ spring:
     name: tarifit-content-service
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/tarifittranslator}
+      uri: ${MONGODB_URI}
 
 server:
   port: ${SERVER_PORT:8082}
