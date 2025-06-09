@@ -47,19 +47,11 @@ class StoryControllerTest {
                 Story(
                     id = "1", 
                     title = "Azul, nec qqaren-ayi Massin",
-                    titleEnglish = "Hello, they call me Massin",
-                    titleFrench = "Bonjour, ils m'appellent Massin",
                     tarifitText = "Azul, nec qqaren-ayi Massin...",
-                    englishText = "Hello, they call me Massin...",
-                    frenchText = "Bonjour, ils m'appellent Massin...",
                     difficultyLevel = "intermediate",
                     category = "autobiographical",
-                    wordCount = 1378,
-                    estimatedReadingTime = 7,
                     author = "Fuad (Amaziɣ Massin)",
-                    publicationDate = "2024-05-13",
                     themes = listOf("identity", "language", "culture"),
-                    createdAt = "2024-12-11"
                 )
             ),
             PageRequest.of(page, size),
@@ -95,12 +87,8 @@ class StoryControllerTest {
                     tarifitText = "Test content",
                     difficultyLevel = "beginner",
                     category = "test",
-                    wordCount = 100,
-                    estimatedReadingTime = 1,
                     author = "Test Author",
-                    publicationDate = "2024-01-01",
                     themes = listOf("identity"),
-                    createdAt = "2024-01-01"
                 )
             ),
             PageRequest.of(0, 20),
@@ -132,12 +120,8 @@ class StoryControllerTest {
                     tarifitText = "Test content",
                     difficultyLevel = "intermediate",
                     category = "autobiographical",
-                    wordCount = 500,
-                    estimatedReadingTime = 3,
                     author = "Test Author",
-                    publicationDate = "2024-01-01",
                     themes = listOf("test"),
-                    createdAt = "2024-01-01"
                 )
             ),
             PageRequest.of(page, size),
@@ -170,12 +154,8 @@ class StoryControllerTest {
                     tarifitText = "Default content",
                     difficultyLevel = "beginner",
                     category = "test",
-                    wordCount = 200,
-                    estimatedReadingTime = 1,
                     author = "Default Author",
-                    publicationDate = "2024-01-01",
                     themes = listOf("default"),
-                    createdAt = "2024-01-01"
                 )
             ),
             PageRequest.of(0, 20),
@@ -204,12 +184,8 @@ class StoryControllerTest {
                 tarifitText = "Random content 1",
                 difficultyLevel = "beginner",
                 category = "fiction",
-                wordCount = 300,
-                estimatedReadingTime = 2,
                 author = "Random Author 1",
-                publicationDate = "2024-01-01",
                 themes = listOf("random"),
-                createdAt = "2024-01-01"
             ),
             Story(
                 id = "2", 
@@ -217,12 +193,8 @@ class StoryControllerTest {
                 tarifitText = "Random content 2",
                 difficultyLevel = "intermediate",
                 category = "historical",
-                wordCount = 600,
-                estimatedReadingTime = 4,
                 author = "Random Author 2",
-                publicationDate = "2024-01-02",
                 themes = listOf("history"),
-                createdAt = "2024-01-02"
             )
         )
         every { storyService.getRandomStories(count) } returns mockResult
@@ -251,12 +223,8 @@ class StoryControllerTest {
                 tarifitText = "Default random content",
                 difficultyLevel = "beginner",
                 category = "test",
-                wordCount = 100,
-                estimatedReadingTime = 1,
                 author = "Default Author",
-                publicationDate = "2024-01-01",
                 themes = listOf("default"),
-                createdAt = "2024-01-01"
             )
         )
         every { storyService.getRandomStories(10) } returns mockResult
@@ -285,12 +253,8 @@ class StoryControllerTest {
                     tarifitText = "Personal story content",
                     difficultyLevel = "intermediate",
                     category = category,
-                    wordCount = 800,
-                    estimatedReadingTime = 5,
                     author = "Personal Author",
-                    publicationDate = "2024-01-01",
                     themes = listOf("identity", "personal"),
-                    createdAt = "2024-01-01"
                 )
             ),
             PageRequest.of(page, size),
@@ -318,19 +282,11 @@ class StoryControllerTest {
         val mockStory = Story(
             id = storyId, 
             title = "Azul, nec qqaren-ayi Massin",
-            titleEnglish = "Hello, they call me Massin",
-            titleFrench = "Bonjour, ils m'appellent Massin",
             tarifitText = "Azul, nec qqaren-ayi Massin...",
-            englishText = "Hello, they call me Massin...",
-            frenchText = "Bonjour, ils m'appellent Massin...",
             difficultyLevel = "intermediate",
             category = "autobiographical",
-            wordCount = 1378,
-            estimatedReadingTime = 7,
             author = "Fuad (Amaziɣ Massin)",
-            publicationDate = "2024-05-13",
             themes = listOf("identity", "language", "culture", "immigration", "family"),
-            createdAt = "2024-12-11"
         )
         every { storyService.getStoryById(storyId) } returns mockStory
 

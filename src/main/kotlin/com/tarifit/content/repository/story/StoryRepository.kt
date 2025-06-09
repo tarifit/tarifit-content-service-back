@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface StoryRepository : MongoRepository<Story, String> {
     
-    @Query("{\$or: [{'title': {\$regex: ?0, \$options: 'i'}}, {'title_english': {\$regex: ?0, \$options: 'i'}}, {'title_french': {\$regex: ?0, \$options: 'i'}}, {'tarifit_text': {\$regex: ?0, \$options: 'i'}}, {'english_text': {\$regex: ?0, \$options: 'i'}}, {'french_text': {\$regex: ?0, \$options: 'i'}}, {'author': {\$regex: ?0, \$options: 'i'}}]}")
+    @Query("{\$or: [{'title': {\$regex: ?0, \$options: 'i'}}, {'tarifit_text': {\$regex: ?0, \$options: 'i'}}, {'author': {\$regex: ?0, \$options: 'i'}}]}")
     fun findByContentContainingIgnoreCase(query: String, pageable: Pageable): Page<Story>
     
     @Query("{'author': {\$regex: ?0, \$options: 'i'}}")

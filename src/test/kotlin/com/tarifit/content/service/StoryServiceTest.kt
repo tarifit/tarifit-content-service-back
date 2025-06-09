@@ -161,12 +161,13 @@ class StoryServiceTest {
         val stories = listOf(
             Story(id = "1", title = "Custom Story", tarifitText = "Custom content", themes = listOf("custom"))
         )
-        val page = PageImpl(stories, PageRequest.of(1, 5), 1)
+        val page = PageImpl(stories, PageRequest.of(1, 5), 6) // Total count is 6, but this page has 1 item
         every { storyRepository.findByContentContainingIgnoreCase("custom", PageRequest.of(1, 5)) } returns page
 
         val result = storyService.searchStories("custom", 1, 5)
 
-        assertEquals(1, result.totalElements)
+        assertEquals(6, result.totalElements) // Total is 6, current page has 1 item
+        assertEquals(1, result.content.size) // Current page content size is 1
         verify { storyRepository.findByContentContainingIgnoreCase("custom", PageRequest.of(1, 5)) }
     }
 

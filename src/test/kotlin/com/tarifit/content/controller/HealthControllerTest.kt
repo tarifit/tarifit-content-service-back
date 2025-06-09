@@ -13,7 +13,6 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-import java.time.Instant
 
 @WebMvcTest(HealthController::class)
 class HealthControllerTest {
@@ -36,9 +35,7 @@ class HealthControllerTest {
         // Given
         val healthStatus = mapOf(
             "status" to "UP",
-            "service" to "tarifit-content-service",
-            "timestamp" to Instant.now(),
-            "version" to "1.0.0"
+            "service" to "tarifit-content-service"
         )
         every { healthService.getHealthStatus() } returns healthStatus
 
@@ -51,7 +48,5 @@ class HealthControllerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.status").value("UP"))
             .andExpect(jsonPath("$.service").value("tarifit-content-service"))
-            .andExpect(jsonPath("$.version").value("1.0.0"))
-            .andExpect(jsonPath("$.timestamp").exists())
     }
 }
