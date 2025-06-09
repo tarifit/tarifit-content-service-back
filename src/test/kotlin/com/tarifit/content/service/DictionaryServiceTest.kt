@@ -1,6 +1,7 @@
 package com.tarifit.content.service
 
 import com.tarifit.content.domain.dictionary.DictionaryAqelei
+import com.tarifit.content.domain.dictionary.DictionaryEntry
 import com.tarifit.content.domain.dictionary.DictionaryWaryaghri
 import com.tarifit.content.repository.dictionary.DictionaryAqeleiRepository
 import com.tarifit.content.repository.dictionary.DictionaryWaryaghriRepository
@@ -9,9 +10,11 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class DictionaryServiceTest {
 
@@ -27,228 +30,256 @@ class DictionaryServiceTest {
     }
 
     @Test
-    fun `searchAqelei should search by word and translation`() {
-        // Given
-        val query = "water"
-        val page = 0
-        val size = 20
-        val pageable = PageRequest.of(page, size)
-        val mockResult = PageImpl(listOf(
-            DictionaryAqelei(id = "1", word = "eau", translation = "aman")
-        ))
-        every { 
-            aqeleiRepository.findByWordOrTranslationContainingIgnoreCase(query, pageable) 
-        } returns mockResult
-
-        // When
-        val result = dictionaryService.searchAqelei(query, page, size)
-
-        // Then
-        assertEquals(mockResult, result)
-        verify { 
-            aqeleiRepository.findByWordOrTranslationContainingIgnoreCase(query, pageable) 
-        }
-    }
-
-    @Test
-    fun `searchWaryaghri should search by mot and definition`() {
-        // Given
-        val query = "aman"
-        val page = 0
-        val size = 20
-        val pageable = PageRequest.of(page, size)
-        val mockResult = PageImpl(listOf(
-            DictionaryWaryaghri(id = "1", mot = "aman", definitionFr = "eau")
-        ))
-        every { 
-            waryaghriRepository.findByMotOrDefinitionContainingIgnoreCase(query, pageable) 
-        } returns mockResult
-
-        // When
-        val result = dictionaryService.searchWaryaghri(query, page, size)
-
-        // Then
-        assertEquals(mockResult, result)
-        verify { 
-            waryaghriRepository.findByMotOrDefinitionContainingIgnoreCase(query, pageable) 
-        }
-    }
-
-    @Test
-    fun `getAllAqelei should return all entries with pagination`() {
-        // Given
-        val page = 0
-        val size = 20
-        val pageable = PageRequest.of(page, size)
-        val mockResult = PageImpl(listOf(
-            DictionaryAqelei(id = "1", word = "eau", translation = "aman")
-        ))
-        every { aqeleiRepository.findAll(pageable) } returns mockResult
-
-        // When
-        val result = dictionaryService.getAllAqelei(page, size)
-
-        // Then
-        assertEquals(mockResult, result)
-        verify { aqeleiRepository.findAll(pageable) }
-    }
-
-    @Test
-    fun `getAllWaryaghri should return all entries with pagination`() {
-        // Given
-        val page = 0
-        val size = 20
-        val pageable = PageRequest.of(page, size)
-        val mockResult = PageImpl(listOf(
-            DictionaryWaryaghri(id = "1", mot = "aman", definitionFr = "eau")
-        ))
-        every { waryaghriRepository.findAll(pageable) } returns mockResult
-
-        // When
-        val result = dictionaryService.getAllWaryaghri(page, size)
-
-        // Then
-        assertEquals(mockResult, result)
-        verify { waryaghriRepository.findAll(pageable) }
-    }
-
-    @Test
-    fun `getRandomAqeleiWords should return random sample from pagination`() {
-        // Given
-        val count = 5
-        val pageable = PageRequest.of(0, count)
-        val mockContent = listOf(
-            DictionaryAqelei(id = "1", word = "eau", translation = "aman"),
-            DictionaryAqelei(id = "2", word = "pain", translation = "aghrum")
+    fun `searchAqelei should return paginated results`() {
+        val entries = listOf(
+            DictionaryAqelei(word = "test", translation = "test translation", type = "noun")
         )
-        val mockPage = PageImpl(mockContent)
-        every { aqeleiRepository.findAll(pageable) } returns mockPage
+        val page = PageImpl(entries, PageRequest.of(0, 20), 1)
+        every { aqeleiRepository.findByWordOrTranslationContainingIgnoreCase("test", any()) } returns page
 
-        // When
-        val result = dictionaryService.getRandomAqeleiWords(count)
+        val result = dictionaryService.searchAqelei("test")
 
-        // Then
-        assertEquals(mockContent, result)
-        verify { aqeleiRepository.findAll(pageable) }
+        assertEquals(1, result.totalElements)
+        assertEquals("test", result.content[0].word)
+        verify { aqeleiRepository.findByWordOrTranslationContainingIgnoreCase("test", any()) }
     }
 
     @Test
-    fun `getRandomWaryaghriWords should return random sample from pagination`() {
-        // Given
-        val count = 5
-        val pageable = PageRequest.of(0, count)
-        val mockContent = listOf(
-            DictionaryWaryaghri(id = "1", mot = "aman", definitionFr = "eau"),
-            DictionaryWaryaghri(id = "2", mot = "aghrum", definitionFr = "pain")
+    fun `searchWaryaghri should return paginated results`() {
+        val entries = listOf(
+            DictionaryWaryaghri(tifinagh = "test", mot = "word", definitionFr = "definition", type = listOf("noun"))
         )
-        val mockPage = PageImpl(mockContent)
-        every { waryaghriRepository.findAll(pageable) } returns mockPage
+        val page = PageImpl(entries, PageRequest.of(0, 20), 1)
+        every { waryaghriRepository.findByMotOrDefinitionContainingIgnoreCase("test", any()) } returns page
 
-        // When
-        val result = dictionaryService.getRandomWaryaghriWords(count)
+        val result = dictionaryService.searchWaryaghri("test")
 
-        // Then
-        assertEquals(mockContent, result)
-        verify { waryaghriRepository.findAll(pageable) }
+        assertEquals(1, result.totalElements)
+        assertEquals("word", result.content[0].mot)
+        verify { waryaghriRepository.findByMotOrDefinitionContainingIgnoreCase("test", any()) }
+    }
+
+    @Test
+    fun `getRandomAqeleiWords should return limited entries`() {
+        val entries = listOf(
+            DictionaryAqelei(word = "random1", translation = "translation1", type = "noun"),
+            DictionaryAqelei(word = "random2", translation = "translation2", type = "verb")
+        )
+        val page = PageImpl(entries, PageRequest.of(0, 5), 2)
+        every { aqeleiRepository.findAll(PageRequest.of(0, 5)) } returns page
+
+        val result = dictionaryService.getRandomAqeleiWords(5)
+
+        assertEquals(2, result.size)
+        assertEquals("random1", result[0].word)
+        verify { aqeleiRepository.findAll(PageRequest.of(0, 5)) }
+    }
+
+    @Test
+    fun `getRandomWaryaghriWords should return limited entries`() {
+        val entries = listOf(
+            DictionaryWaryaghri(tifinagh = "test1", mot = "word1", definitionFr = "def1", type = listOf("noun"))
+        )
+        val page = PageImpl(entries, PageRequest.of(0, 10), 1)
+        every { waryaghriRepository.findAll(PageRequest.of(0, 10)) } returns page
+
+        val result = dictionaryService.getRandomWaryaghriWords(10)
+
+        assertEquals(1, result.size)
+        assertEquals("word1", result[0].mot)
+        verify { waryaghriRepository.findAll(PageRequest.of(0, 10)) }
+    }
+
+    @Test
+    fun `getAllAqelei should return paginated results`() {
+        val entries = listOf(
+            DictionaryAqelei(word = "all1", translation = "trans1", type = "noun"),
+            DictionaryAqelei(word = "all2", translation = "trans2", type = "verb")
+        )
+        val page = PageImpl(entries, PageRequest.of(0, 20), 2)
+        every { aqeleiRepository.findAll(any<PageRequest>()) } returns page
+
+        val result = dictionaryService.getAllAqelei()
+
+        assertEquals(2, result.totalElements)
+        assertEquals(2, result.content.size)
+        verify { aqeleiRepository.findAll(any<PageRequest>()) }
+    }
+
+    @Test
+    fun `getAllWaryaghri should return paginated results`() {
+        val entries = listOf(
+            DictionaryWaryaghri(tifinagh = "all1", mot = "word1", definitionFr = "def1", type = listOf("noun"))
+        )
+        val page = PageImpl(entries, PageRequest.of(1, 10), 11) // Total 11, page 1 has 1 item
+        every { waryaghriRepository.findAll(PageRequest.of(1, 10)) } returns page
+
+        val result = dictionaryService.getAllWaryaghri(1, 10)
+
+        assertEquals(11, result.totalElements) // Total elements is 11
+        assertEquals(1, result.content.size) // Current page has 1 item
+        assertEquals("word1", result.content[0].mot)
+        verify { waryaghriRepository.findAll(PageRequest.of(1, 10)) }
+    }
+
+    @Test
+    fun `searchDictionary should search waryaghri when type is waryaghri`() {
+        val entries = listOf(
+            DictionaryWaryaghri(tifinagh = "test", mot = "search", definitionFr = "definition", type = listOf("noun"))
+        )
+        val page = PageImpl(entries, PageRequest.of(0, 20), 1)
+        every { waryaghriRepository.findByMotOrDefinitionContainingIgnoreCase("search", any()) } returns page
+
+        val result = dictionaryService.searchDictionary("search", "waryaghri")
+
+        assertEquals(1, result.totalElements)
+        assertTrue(result.content[0] is DictionaryEntry)
+        verify { waryaghriRepository.findByMotOrDefinitionContainingIgnoreCase("search", any()) }
+    }
+
+    @Test
+    fun `searchDictionary should search aqelei when type is not waryaghri`() {
+        val entries = listOf(
+            DictionaryAqelei(word = "search", translation = "chercher", type = "verb")
+        )
+        val page = PageImpl(entries, PageRequest.of(0, 20), 1)
+        every { aqeleiRepository.findByWordOrTranslationContainingIgnoreCase("search", any()) } returns page
+
+        val result = dictionaryService.searchDictionary("search", "aqelei")
+
+        assertEquals(1, result.totalElements)
+        assertTrue(result.content[0] is DictionaryEntry)
+        verify { aqeleiRepository.findByWordOrTranslationContainingIgnoreCase("search", any()) }
+    }
+
+    @Test
+    fun `getRandomWords should return waryaghri words when type is waryaghri`() {
+        val entries = listOf(
+            DictionaryWaryaghri(tifinagh = "rand", mot = "random", definitionFr = "aléatoire", type = listOf("adj"))
+        )
+        val page = PageImpl(entries, PageRequest.of(0, 15), 1)
+        every { waryaghriRepository.findAll(PageRequest.of(0, 15)) } returns page
+
+        val result = dictionaryService.getRandomWords("WARYAGHRI", 15)
+
+        assertEquals(1, result.size)
+        assertTrue(result[0] is DictionaryEntry)
+        verify { waryaghriRepository.findAll(PageRequest.of(0, 15)) }
+    }
+
+    @Test
+    fun `getRandomWords should return aqelei words when type is not waryaghri`() {
+        val entries = listOf(
+            DictionaryAqelei(word = "random", translation = "aléatoire", type = "adj")
+        )
+        val page = PageImpl(entries, PageRequest.of(0, 8), 1)
+        every { aqeleiRepository.findAll(PageRequest.of(0, 8)) } returns page
+
+        val result = dictionaryService.getRandomWords("aqelei", 8)
+
+        assertEquals(1, result.size)
+        assertTrue(result[0] is DictionaryEntry)
+        verify { aqeleiRepository.findAll(PageRequest.of(0, 8)) }
+    }
+
+    @Test
+    fun `getAllDictionaryEntries should return waryaghri entries when type is waryaghri`() {
+        val entries = listOf(
+            DictionaryWaryaghri(tifinagh = "all", mot = "tous", definitionFr = "everything", type = listOf("det"))
+        )
+        val page = PageImpl(entries, PageRequest.of(2, 5), 11) // Total 11, page 2 has 1 item
+        every { waryaghriRepository.findAll(PageRequest.of(2, 5)) } returns page
+
+        val result = dictionaryService.getAllDictionaryEntries("waryaghri", 2, 5)
+
+        assertEquals(11, result.totalElements) // Total elements is 11
+        assertEquals(1, result.content.size) // Current page has 1 item
+        assertTrue(result.content[0] is DictionaryEntry)
+        verify { waryaghriRepository.findAll(PageRequest.of(2, 5)) }
+    }
+
+    @Test
+    fun `getAllDictionaryEntries should return aqelei entries when type is not waryaghri`() {
+        val entries = listOf(
+            DictionaryAqelei(word = "all", translation = "tous", type = "det")
+        )
+        val page = PageImpl(entries, PageRequest.of(0, 25), 1)
+        every { aqeleiRepository.findAll(PageRequest.of(0, 25)) } returns page
+
+        val result = dictionaryService.getAllDictionaryEntries("other", 0, 25)
+
+        assertEquals(1, result.totalElements)
+        assertTrue(result.content[0] is DictionaryEntry)
+        verify { aqeleiRepository.findAll(PageRequest.of(0, 25)) }
     }
 
     @Test
     fun `searchAqelei with custom pagination should work correctly`() {
-        val query = "test"
-        val page = 1
-        val size = 10
-        val pageable = PageRequest.of(page, size)
-        val mockResult = PageImpl(emptyList<DictionaryAqelei>())
-        every { 
-            aqeleiRepository.findByWordOrTranslationContainingIgnoreCase(query, pageable) 
-        } returns mockResult
+        val entries = listOf(
+            DictionaryAqelei(word = "custom", translation = "personnalisé", type = "adj")
+        )
+        val page = PageImpl(entries, PageRequest.of(1, 5), 6)
+        every { aqeleiRepository.findByWordOrTranslationContainingIgnoreCase("custom", PageRequest.of(1, 5)) } returns page
 
-        val result = dictionaryService.searchAqelei(query, page, size)
+        val result = dictionaryService.searchAqelei("custom", 1, 5)
 
-        assertEquals(0, result.totalElements)
-        verify { aqeleiRepository.findByWordOrTranslationContainingIgnoreCase(query, pageable) }
+        assertEquals(6, result.totalElements)
+        assertEquals(1, result.content.size)
+        verify { aqeleiRepository.findByWordOrTranslationContainingIgnoreCase("custom", PageRequest.of(1, 5)) }
     }
 
     @Test
     fun `searchWaryaghri with custom pagination should work correctly`() {
-        val query = "test"
-        val page = 2
-        val size = 5
-        val pageable = PageRequest.of(page, size)
-        val mockResult = PageImpl(emptyList<DictionaryWaryaghri>())
-        every { 
-            waryaghriRepository.findByMotOrDefinitionContainingIgnoreCase(query, pageable) 
-        } returns mockResult
+        val entries = listOf(
+            DictionaryWaryaghri(tifinagh = "cust", mot = "custom", definitionFr = "personnalisé", type = listOf("adj"))
+        )
+        val page = PageImpl(entries, PageRequest.of(2, 3), 10)
+        every { waryaghriRepository.findByMotOrDefinitionContainingIgnoreCase("custom", PageRequest.of(2, 3)) } returns page
 
-        val result = dictionaryService.searchWaryaghri(query, page, size)
+        val result = dictionaryService.searchWaryaghri("custom", 2, 3)
 
-        assertEquals(0, result.totalElements)
-        verify { waryaghriRepository.findByMotOrDefinitionContainingIgnoreCase(query, pageable) }
+        assertEquals(10, result.totalElements)
+        assertEquals(1, result.content.size)
+        verify { waryaghriRepository.findByMotOrDefinitionContainingIgnoreCase("custom", PageRequest.of(2, 3)) }
     }
 
     @Test
-    fun `getAllAqelei with custom pagination should work correctly`() {
-        val page = 3
-        val size = 15
-        val pageable = PageRequest.of(page, size)
-        val mockResult = PageImpl(listOf(
-            DictionaryAqelei(id = "1", word = "test", translation = "test")
-        ))
-        every { aqeleiRepository.findAll(pageable) } returns mockResult
+    fun `searchDictionary should handle case-insensitive type matching`() {
+        val entries = listOf(
+            DictionaryWaryaghri(tifinagh = "test", mot = "CASE", definitionFr = "case test", type = listOf("noun"))
+        )
+        val page = PageImpl(entries, PageRequest.of(0, 20), 1)
+        every { waryaghriRepository.findByMotOrDefinitionContainingIgnoreCase("case", any()) } returns page
 
-        val result = dictionaryService.getAllAqelei(page, size)
+        val result = dictionaryService.searchDictionary("case", "WARYAGHRI")
 
         assertEquals(1, result.totalElements)
-        verify { aqeleiRepository.findAll(pageable) }
+        verify { waryaghriRepository.findByMotOrDefinitionContainingIgnoreCase("case", any()) }
     }
 
     @Test
-    fun `getAllWaryaghri with custom pagination should work correctly`() {
-        val page = 1
-        val size = 25
-        val pageable = PageRequest.of(page, size)
-        val mockResult = PageImpl(listOf(
-            DictionaryWaryaghri(id = "1", mot = "test", definitionFr = "test")
-        ))
-        every { waryaghriRepository.findAll(pageable) } returns mockResult
-
-        val result = dictionaryService.getAllWaryaghri(page, size)
-
-        assertEquals(1, result.totalElements)
-        verify { waryaghriRepository.findAll(pageable) }
-    }
-
-    @Test
-    fun `getRandomAqeleiWords with different count should work correctly`() {
-        val count = 15
-        val pageable = PageRequest.of(0, count)
-        val mockContent = listOf(
-            DictionaryAqelei(id = "1", word = "random1", translation = "random1"),
-            DictionaryAqelei(id = "2", word = "random2", translation = "random2"),
-            DictionaryAqelei(id = "3", word = "random3", translation = "random3")
+    fun `getRandomWords should handle case-insensitive type matching`() {
+        val entries = listOf(
+            DictionaryAqelei(word = "case", translation = "cas", type = "noun")
         )
-        val mockPage = PageImpl(mockContent)
-        every { aqeleiRepository.findAll(pageable) } returns mockPage
+        val page = PageImpl(entries, PageRequest.of(0, 12), 1)
+        every { aqeleiRepository.findAll(PageRequest.of(0, 12)) } returns page
 
-        val result = dictionaryService.getRandomAqeleiWords(count)
-
-        assertEquals(3, result.size)
-        verify { aqeleiRepository.findAll(pageable) }
-    }
-
-    @Test
-    fun `getRandomWaryaghriWords with different count should work correctly`() {
-        val count = 8
-        val pageable = PageRequest.of(0, count)
-        val mockContent = listOf(
-            DictionaryWaryaghri(id = "1", mot = "random1", definitionFr = "random1")
-        )
-        val mockPage = PageImpl(mockContent)
-        every { waryaghriRepository.findAll(pageable) } returns mockPage
-
-        val result = dictionaryService.getRandomWaryaghriWords(count)
+        val result = dictionaryService.getRandomWords("AQELEI", 12)
 
         assertEquals(1, result.size)
-        verify { waryaghriRepository.findAll(pageable) }
+        verify { aqeleiRepository.findAll(PageRequest.of(0, 12)) }
+    }
+
+    @Test
+    fun `getAllDictionaryEntries should handle empty results`() {
+        val page = PageImpl(emptyList<DictionaryAqelei>(), PageRequest.of(5, 10), 0)
+        every { aqeleiRepository.findAll(PageRequest.of(5, 10)) } returns page
+
+        val result = dictionaryService.getAllDictionaryEntries("aqelei", 5, 10)
+
+        assertEquals(0, result.totalElements)
+        assertEquals(0, result.content.size)
+        verify { aqeleiRepository.findAll(PageRequest.of(5, 10)) }
     }
 }

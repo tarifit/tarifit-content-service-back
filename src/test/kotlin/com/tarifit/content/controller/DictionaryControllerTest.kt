@@ -162,4 +162,47 @@ class DictionaryControllerTest {
 
         verify { dictionaryService.getAllDictionaryEntries(type, page, size) }
     }
+
+    @Test
+    fun `searchDictionary should handle empty query`() {
+        val mockResult: Page<DictionaryEntry> = PageImpl(emptyList())
+        every { dictionaryService.searchDictionary("", "aqelei", 0, 20) } returns mockResult
+
+        mockMvc.perform(
+            get("/api/v1/content/dictionary/search")
+                .param("q", "")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.content").isEmpty)
+    }
+
+    @Test
+    fun `getRandomWords should handle large count parameter`() {
+        val mockResult: List<DictionaryEntry> = emptyList()
+        every { dictionaryService.getRandomWords("waryaghri", 1000) } returns mockResult
+
+        mockMvc.perform(
+            get("/api/v1/content/dictionary/random")
+                .param("type", "waryaghri")
+                .param("count", "1000")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$").isArray)
+    }
+
+    @Test
+    fun `getAllDictionaryEntries should use default parameters`() {
+        val mockResult: Page<DictionaryEntry> = PageImpl(emptyList())
+        every { dictionaryService.getAllDictionaryEntries("aqelei", 0, 20) } returns mockResult
+
+        mockMvc.perform(
+            get("/api/v1/content/dictionary")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isOk)
+
+        verify { dictionaryService.getAllDictionaryEntries("aqelei", 0, 20) }
+    }
 }
