@@ -3,7 +3,7 @@ spring:
     name: tarifit-content-service-test
   data:
     mongodb:
-      uri: ${MONGODB_TEST_URI}
+      uri: ${MONGODB_URI}
       database: tarifittranslator_test
 
 server:
