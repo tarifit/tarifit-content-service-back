@@ -236,7 +236,7 @@ class SentenceControllerTest {
         val sentences = listOf(
             Sentence(id = "1", englishSentence = "Test sentence", rifSentence = "Asekki n tarmid")
         )
-        val pageResult = PageImpl(sentences, PageRequest.of(page, size), 8)
+        val pageResult = PageImpl(sentences, PageRequest.of(page, size), 16)
         every { sentenceService.searchByEnglish(query, page, size) } returns pageResult
 
         mockMvc.perform(get("/api/v1/content/sentences/search/english")
@@ -245,7 +245,7 @@ class SentenceControllerTest {
             .param("size", size.toString())
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.totalElements").value(8))
+            .andExpect(jsonPath("$.totalElements").value(16))
             .andExpect(jsonPath("$.number").value(page))
 
         verify { sentenceService.searchByEnglish(query, page, size) }
