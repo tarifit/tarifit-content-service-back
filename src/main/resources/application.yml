@@ -3,7 +3,27 @@ spring:
     name: tarifit-content-service
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/tarifittranslator}
+      uri: ${MONGODB_URI:mongodb://localhost:27017/tarifittranslator}
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:default}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/tarifittranslator_test
+
+---
+spring:
+  config:
+    activate:
+      on-profile: integration
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/tarifittranslator_test}
 
 server:
   port: ${SERVER_PORT:8082}
