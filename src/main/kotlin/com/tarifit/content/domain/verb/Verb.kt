@@ -8,5 +8,6 @@ data class Verb(
     @Id val id: String? = null,
     val verb: String,
     val translation: String,
-    val conjugations: Map<String, Map<String, String>> = emptyMap()
+    val conjugations: Map<String, Map<String, String>> = emptyMap(),
+    val participes: Map<String, String> = emptyMap()
 )

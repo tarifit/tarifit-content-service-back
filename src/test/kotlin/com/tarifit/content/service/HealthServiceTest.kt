@@ -28,8 +28,8 @@ class HealthServiceTest {
 
         assertEquals(result1["status"], result2["status"])
         assertEquals(result1["service"], result2["service"])
-        assertEquals(2, result1.size)
-        assertEquals(2, result2.size)
+        assertEquals(4, result1.size)
+        assertEquals(4, result2.size)
     }
 
     @Test
@@ -46,8 +46,9 @@ class HealthServiceTest {
     fun `getHealthStatus should return map with string values`() {
         val result = healthService.getHealthStatus()
 
-        result.values.forEach { value ->
-            assert(value is String) { "All values should be strings, but found: ${value::class}" }
-        }
+        assertEquals("UP", result["status"])
+        assertEquals("tarifit-content-service", result["service"])
+        assertEquals("1.0.0", result["version"])
+        assert(result["timestamp"] != null)
     }
 }

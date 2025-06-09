@@ -133,7 +133,7 @@ class DictionaryServiceTest {
         val result = dictionaryService.searchDictionary("search", "waryaghri")
 
         assertEquals(1, result.totalElements)
-        assertTrue(result.content[0] is DictionaryEntry)
+        assertEquals("search", (result.content[0] as DictionaryWaryaghri).mot)
         verify { waryaghriRepository.findByMotOrDefinitionContainingIgnoreCase("search", any()) }
     }
 
@@ -148,7 +148,7 @@ class DictionaryServiceTest {
         val result = dictionaryService.searchDictionary("search", "aqelei")
 
         assertEquals(1, result.totalElements)
-        assertTrue(result.content[0] is DictionaryEntry)
+        assertEquals("search", (result.content[0] as DictionaryAqelei).word)
         verify { aqeleiRepository.findByWordOrTranslationContainingIgnoreCase("search", any()) }
     }
 
@@ -163,7 +163,7 @@ class DictionaryServiceTest {
         val result = dictionaryService.getRandomWords("WARYAGHRI", 15)
 
         assertEquals(1, result.size)
-        assertTrue(result[0] is DictionaryEntry)
+        assertEquals("random", (result[0] as DictionaryWaryaghri).mot)
         verify { waryaghriRepository.findAll(PageRequest.of(0, 15)) }
     }
 
@@ -178,7 +178,7 @@ class DictionaryServiceTest {
         val result = dictionaryService.getRandomWords("aqelei", 8)
 
         assertEquals(1, result.size)
-        assertTrue(result[0] is DictionaryEntry)
+        assertEquals("random", (result[0] as DictionaryAqelei).word)
         verify { aqeleiRepository.findAll(PageRequest.of(0, 8)) }
     }
 
@@ -194,7 +194,7 @@ class DictionaryServiceTest {
 
         assertEquals(11, result.totalElements) // Total elements is 11
         assertEquals(1, result.content.size) // Current page has 1 item
-        assertTrue(result.content[0] is DictionaryEntry)
+        assertEquals("tous", (result.content[0] as DictionaryWaryaghri).mot)
         verify { waryaghriRepository.findAll(PageRequest.of(2, 5)) }
     }
 
@@ -209,7 +209,7 @@ class DictionaryServiceTest {
         val result = dictionaryService.getAllDictionaryEntries("other", 0, 25)
 
         assertEquals(1, result.totalElements)
-        assertTrue(result.content[0] is DictionaryEntry)
+        assertEquals("all", (result.content[0] as DictionaryAqelei).word)
         verify { aqeleiRepository.findAll(PageRequest.of(0, 25)) }
     }
 
