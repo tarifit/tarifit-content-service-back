@@ -208,4 +208,135 @@ class SentenceControllerTest {
 
         verify { sentenceService.searchSentences(query, 0, 20) }
     }
+
+    @Test
+    fun `searchByEnglish should return sentences matching english query`() {
+        val query = "hello"
+        val sentences = listOf(
+            Sentence(id = "1", englishSentence = "Hello world", rifSentence = "Azul amadal")
+        )
+        val page = PageImpl(sentences, PageRequest.of(0, 20), 1)
+        every { sentenceService.searchByEnglish(query, 0, 20) } returns page
+
+        mockMvc.perform(get("/api/v1/content/sentences/search/english")
+            .param("q", query)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.content[0].englishSentence").value("Hello world"))
+            .andExpect(jsonPath("$.totalElements").value(1))
+
+        verify { sentenceService.searchByEnglish(query, 0, 20) }
+    }
+
+    @Test
+    fun `searchByEnglish should handle custom pagination`() {
+        val query = "test"
+        val page = 1
+        val size = 15
+        val sentences = listOf(
+            Sentence(id = "1", englishSentence = "Test sentence", rifSentence = "Asekki n tarmid")
+        )
+        val pageResult = PageImpl(sentences, PageRequest.of(page, size), 8)
+        every { sentenceService.searchByEnglish(query, page, size) } returns pageResult
+
+        mockMvc.perform(get("/api/v1/content/sentences/search/english")
+            .param("q", query)
+            .param("page", page.toString())
+            .param("size", size.toString())
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.totalElements").value(8))
+            .andExpect(jsonPath("$.number").value(page))
+
+        verify { sentenceService.searchByEnglish(query, page, size) }
+    }
+
+    @Test
+    fun `searchByRif should return sentences matching rif query`() {
+        val query = "azul"
+        val sentences = listOf(
+            Sentence(id = "1", englishSentence = "Hello world", rifSentence = "Azul amadal")
+        )
+        val page = PageImpl(sentences, PageRequest.of(0, 20), 1)
+        every { sentenceService.searchByRif(query, 0, 20) } returns page
+
+        mockMvc.perform(get("/api/v1/content/sentences/search/rif")
+            .param("q", query)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.content[0].rifSentence").value("Azul amadal"))
+            .andExpect(jsonPath("$.totalElements").value(1))
+
+        verify { sentenceService.searchByRif(query, 0, 20) }
+    }
+
+    @Test
+    fun `searchByRif should handle empty results`() {
+        val query = "nonexistent"
+        val emptyPage = PageImpl(emptyList<Sentence>(), PageRequest.of(0, 20), 0)
+        every { sentenceService.searchByRif(query, 0, 20) } returns emptyPage
+
+        mockMvc.perform(get("/api/v1/content/sentences/search/rif")
+            .param("q", query)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.content").isEmpty)
+            .andExpect(jsonPath("$.totalElements").value(0))
+
+        verify { sentenceService.searchByRif(query, 0, 20) }
+    }
+
+    @Test
+    fun `getSentenceById should return sentence when found`() {
+        val sentenceId = "123"
+        val sentence = Sentence(id = sentenceId, englishSentence = "Test sentence", rifSentence = "Asekki n tarmid")
+        every { sentenceService.getSentenceById(sentenceId) } returns sentence
+
+        mockMvc.perform(get("/api/v1/content/sentences/$sentenceId")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(sentenceId))
+            .andExpect(jsonPath("$.englishSentence").value("Test sentence"))
+            .andExpect(jsonPath("$.rifSentence").value("Asekki n tarmid"))
+
+        verify { sentenceService.getSentenceById(sentenceId) }
+    }
+
+    @Test
+    fun `getSentenceById should return 404 when sentence not found`() {
+        val sentenceId = "nonexistent"
+        every { sentenceService.getSentenceById(sentenceId) } returns null
+
+        mockMvc.perform(get("/api/v1/content/sentences/$sentenceId")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound)
+
+        verify { sentenceService.getSentenceById(sentenceId) }
+    }
+
+    @Test
+    fun `getSentenceCount should return total count`() {
+        val count = 1500L
+        every { sentenceService.countAllSentences() } returns count
+
+        mockMvc.perform(get("/api/v1/content/sentences/count")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.count").value(count))
+
+        verify { sentenceService.countAllSentences() }
+    }
+
+    @Test
+    fun `getSentenceCount should handle zero count`() {
+        val count = 0L
+        every { sentenceService.countAllSentences() } returns count
+
+        mockMvc.perform(get("/api/v1/content/sentences/count")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.count").value(0))
+
+        verify { sentenceService.countAllSentences() }
+    }
 }
